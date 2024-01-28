@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Registration Form</title>
+    <style>
+      .error {
+        color: red;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  </head>
+  <body>
+    <h2>User Registration Form</h2>
+
+    <form id="registrationForm">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required />
+      <span id="usernameError" class="error"></span><br />
+
+      <label for="phone">Phone:</label>
+      <input type="tel" id="phone" name="phone" pattern="[0-9]{11}" required />
+      <span id="phoneError" class="error"></span><br />
+
+      <label for="email">Email:</label>
+      <input type="email" id="email" name="email" required />
+      <span id="emailError" class="error"></span><br />
+
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required />
+      <span id="passwordError" class="error"></span><br />
+
+      <input type="button" value="Submit" onclick="validateForm()" />
+    </form>
+
+    <h1 id="message"></h1>
+
+    <script>
+      function validateForm() {
+        // Reset error messages
+        $(".error").text("");
+
+        var valid = true;
+
+        // Validate username
+        var username = $("#username").val();
+        if (username.trim() === "") {
+          $("#usernameError").text("Username is required from frontrnd.");
+          valid = false;
+        }
+
+        // Validate phone
+        var phone = $("#phone").val();
+        if (!/^\d{11}$/.test(phone)) {
+          $("#phoneError").text(
+            "Phone must be an 11-digit number from frontrnd."
+          );
+          valid = false;
+        }
+
+        // Validate email
+        var email = $("#email").val();
+        if (email.trim() === "" || !/^\S+@\S+\.\S+$/.test(email)) {
+          $("#emailError").text("Invalid email address from frontrnd.");
+          valid = false;
+        }
+
+        // Validate password
+        var password = $("#password").val();
+        if (password.trim() === "") {
+          $("#passwordError").text("Password is required from frontrnd.");
+          valid = false;
+        }
+
+        // If form is valid, submit it
+        if (valid) {
+          submitForm();
+        }
+      }
+
+      function submitForm() {
+        // Collect form data
+        var formData = $("#registrationForm").serialize();
+
+        // AJAX request using jQuery
+        $.ajax({
+          type: "POST",
+          url: "process.php",
+          data: formData,
+          dataType: "json", // Ensure that the response is treated as JSON
+          success: function (response) {
+            if (response.status === "success") {
+              $("#message").html(response.message);
+            } else if (response.status === "EmailError") {
+              $("#emailError").text(response.message);
+            } else if (response.status === "PhoneError") {
+              $("#phoneError").text(response.message);
+            } else {
+              // Handle other statuses if needed
+              $("#message").html("Error: " + response.message);
+            }
+          },
+          error: function (xhr, status, error) {
+            // Handle AJAX errors here
+            console.error("AJAX error:", status, error);
+          },
+        });
+      }
+    </script>
+  </body>
+</html>
